@@ -1,21 +1,18 @@
 package net.fexcraft.mod.fsmm;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import net.fexcraft.lib.mc.network.PacketHandler;
 import net.fexcraft.lib.mc.network.PacketHandler.PacketHandlerType;
 import net.fexcraft.lib.mc.registry.FCLRegistry;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.lib.mc.utils.Static;
 import net.fexcraft.mod.fsmm.data.Money;
-import net.fexcraft.mod.fsmm.data.PlayerCapability;
-import net.fexcraft.mod.fsmm.gui.GuiHandler;
-import net.fexcraft.mod.fsmm.gui.Processor;
 import net.fexcraft.mod.fsmm.data.MoneyItem;
+import net.fexcraft.mod.fsmm.data.PlayerCapability;
 import net.fexcraft.mod.fsmm.data.cap.PlayerCapCallable;
 import net.fexcraft.mod.fsmm.data.cap.PlayerCapStorage;
+import net.fexcraft.mod.fsmm.gui.GuiHandler;
+import net.fexcraft.mod.fsmm.gui.Processor;
+import net.fexcraft.mod.fsmm.oc.driver.ATMDriver;
 import net.fexcraft.mod.fsmm.util.Command;
 import net.fexcraft.mod.fsmm.util.Config;
 import net.fexcraft.mod.fsmm.util.DataManager;
@@ -24,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -38,6 +36,14 @@ import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @author Ferdinand Calo' (FEX___96)
+ * @author FatalMerlin (merlin.brandes@gmail.com)
+ */
 @Mod(modid = FSMM.MODID, name = "Fex's Small Money Mod", version = FSMM.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "*",
 		updateJSON = "http://fexcraft.net/minecraft/fcl/request?mode=getForgeUpdateJson&modid=fsmm", dependencies = "required-after:fcl;before:votifier", guiFactory = "net.fexcraft.mod.fsmm.util.GuiFactory")
 public class FSMM {
@@ -83,6 +89,10 @@ public class FSMM {
     public void init(FMLInitializationEvent event){
 		NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, new GuiHandler());
 		PermissionAPI.registerNode("fsmm.admin", DefaultPermissionLevel.OP, "FSMM Admin Permission");
+
+		if (Loader.isModLoaded("opencomputers")) {
+			ATMDriver.register();
+		}
     }
 
     @Mod.EventHandler

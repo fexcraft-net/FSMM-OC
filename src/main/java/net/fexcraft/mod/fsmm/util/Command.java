@@ -22,10 +22,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.server.permission.PermissionAPI;
 
+/**
+ * @author Ferdinand Calo' (FEX___96)
+ * @author FatalMerlin (merlin.brandes@gmail.com)
+ */
 public class Command extends CommandBase{
 
 	public static final String PREFIX = Formatter.format("&0[&bFSMM&0]&7 ");
-	private final static ArrayList<String> aliases = new ArrayList<String>();
+	private final static ArrayList<String> aliases = new ArrayList<>();
 	static{ aliases.add("money"); aliases.add("balance"); aliases.add("currency"); }
   
     public Command(){ return; }
@@ -150,6 +154,24 @@ public class Command extends CommandBase{
     			Print.chat(sender, "&aLast scheduled unload: &r&7" + Time.getAsString(DataManager.LAST_TIMERTASK));
     			return;
     		}
+			case "accept": {
+				if (!TransferManager.getInstance().hasTransferRequest(sender.getName())) {
+					Print.chat(sender, "&bNo Transfer Requests.");
+					return;
+				}
+				TransferManager.getInstance().acceptTransferRequest(sender.getName());
+				Print.chat(sender, "&aTransfer Request accepted.");
+				return;
+			}
+			case "reject": {
+				if (!TransferManager.getInstance().hasTransferRequest(sender.getName())) {
+					Print.chat(sender, "&bNo Transfer Requests.");
+					return;
+				}
+				TransferManager.getInstance().rejectTransferRequest(sender.getName());
+				Print.chat(sender, "&cTransfer Request rejected.");
+				return;
+			}
     		default:{
     			Print.chat(sender, "&cInvalid Argument.");
     			return;
