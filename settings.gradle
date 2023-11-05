@@ -13,3 +13,5 @@ pluginManagement {
 
 include ':FCL'
 project(':FCL').projectDir = new File(settingsDir, '../FCL')
+include ':FSMM'
+project(':FSMM').projectDir = new File(settingsDir, '../FSMM')
