@@ -7,14 +7,14 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import net.fexcraft.lib.common.math.Time;
+import net.fexcraft.lib.common.utils.Formatter;
 import net.fexcraft.lib.mc.registry.UCResourceLocation;
-import net.fexcraft.lib.mc.utils.Formatter;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.lib.mc.utils.Static;
 import net.fexcraft.mod.fsmm.FSMM;
-import net.fexcraft.mod.fsmm.api.Account;
-import net.fexcraft.mod.fsmm.api.Bank;
-import net.fexcraft.mod.fsmm.api.FSMMCapabilities;
+import net.fexcraft.mod.fsmm.data.Account;
+import net.fexcraft.mod.fsmm.data.Bank;
+import net.fexcraft.mod.fsmm.data.FSMMCapabilities;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,10 +22,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.server.permission.PermissionAPI;
 
+/**
+ * @author Ferdinand Calo' (FEX___96)
+ * @author FatalMerlin (merlin.brandes@gmail.com)
+ */
 public class Command extends CommandBase{
 
 	public static final String PREFIX = Formatter.format("&0[&bFSMM&0]&7 ");
-	private final static ArrayList<String> aliases = new ArrayList<String>();
+	private final static ArrayList<String> aliases = new ArrayList<>();
 	static{ aliases.add("money"); aliases.add("balance"); aliases.add("currency"); }
   
     public Command(){ return; }
@@ -59,12 +63,9 @@ public class Command extends CommandBase{
     			Print.chat(sender,"&bIn Inventory&0: &a" + Config.getWorthAsString(value));
     			Print.chat(sender, "&bIn Bank&0: &a" + Config.getWorthAsString(sender.getCommandSenderEntity().getCapability(FSMMCapabilities.PLAYER, null).getAccount().getBalance()));
     		}
-    		else if(DataManager.getBank(Config.DEFAULT_BANK, true, true) != null){
-    			Bank bank = DataManager.getBank(Config.DEFAULT_BANK, true, false);
-    			Print.chat(sender, "&bDefault Bank Balance&0: &a" + Config.getWorthAsString(bank.getBalance()));
-    		}
     		else{
-    			Print.chat(sender, "No default bank found to display balance.");
+    			Bank bank = DataManager.getDefaultBank();
+    			Print.chat(sender, "&bDefault Bank Balance&0: &a" + Config.getWorthAsString(bank.getBalance()));
     		}
     		return;
     	}
@@ -149,11 +150,28 @@ public class Command extends CommandBase{
     				temp = map.values().stream().filter(pre -> pre.lastAccessed() >= 0).count();
     				Print.chat(sender, "&2> &b" + str + ": &7" + map.size() + (temp > 0 ? " &8(&a" + temp + "temp.&8)" : ""));
     			}
-    			temp = DataManager.getBanks().values().stream().filter(pre -> pre.lastAccessed() >= 0).count();
-    			Print.chat(sender, "&bBanks loaded: &7" + DataManager.getBanks().size() + (temp > 0 ? " &8(&a" + temp + "temp.&8)" : ""));
+    			Print.chat(sender, "&bBanks active: &7" + DataManager.getBanks().size());
     			Print.chat(sender, "&aLast scheduled unload: &r&7" + Time.getAsString(DataManager.LAST_TIMERTASK));
     			return;
     		}
+			case "accept": {
+				if (!TransferManager.getInstance().hasTransferRequest(sender.getName())) {
+					Print.chat(sender, "&bNo Transfer Requests.");
+					return;
+				}
+				TransferManager.getInstance().acceptTransferRequest(sender.getName());
+				Print.chat(sender, "&aTransfer Request accepted.");
+				return;
+			}
+			case "reject": {
+				if (!TransferManager.getInstance().hasTransferRequest(sender.getName())) {
+					Print.chat(sender, "&bNo Transfer Requests.");
+					return;
+				}
+				TransferManager.getInstance().rejectTransferRequest(sender.getName());
+				Print.chat(sender, "&cTransfer Request rejected.");
+				return;
+			}
     		default:{
     			Print.chat(sender, "&cInvalid Argument.");
     			return;
